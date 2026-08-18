@@ -16,7 +16,7 @@ class RubricItemBase(BaseModel):
 
 
 class RubricItemCreate(RubricItemBase):
-    pass
+    model_config = ConfigDict(extra="forbid")
 
 
 class RubricCreate(BaseModel):
@@ -60,6 +60,30 @@ class RubricValidationIssue(BaseModel):
     details: dict[str, Any] = Field(default_factory=dict)
 
 
+class RubricValidationWarning(BaseModel):
+    code: str
+    message: str
+    criterion: str | None = None
+
+
 class RubricValidationResponse(BaseModel):
     valid: bool
+    ai_valid: bool | None = None
     errors: list[RubricValidationIssue]
+    warnings: list[RubricValidationWarning] = Field(default_factory=list)
+    ai_prompt_version: str | None = None
+
+
+class AssignmentAnalysisRead(BaseModel):
+    assignment_type: str
+    requirements: list[str]
+    expected_outputs: list[str] = Field(default_factory=list)
+    constraints: list[str] = Field(default_factory=list)
+
+
+class RubricGenerateResponse(BaseModel):
+    rubric: RubricRead
+    analysis: AssignmentAnalysisRead
+    ai_valid: bool
+    warnings: list[RubricValidationWarning] = Field(default_factory=list)
+    prompt_versions: dict[str, str]

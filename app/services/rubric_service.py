@@ -31,6 +31,49 @@ class RubricService:
         assignment_id: int,
         payload: RubricCreate,
     ) -> Rubric:
+        return self._create_initial_rubric(
+            db,
+            assignment_id,
+            payload.items,
+            source=RubricSource.TEACHER_PROVIDED.value,
+        )
+
+    def create_ai_generated_rubric(
+        self,
+        db: Session,
+        assignment_id: int,
+        items: list[RubricItemCreate],
+    ) -> Rubric:
+        return self._create_initial_rubric(
+            db,
+            assignment_id,
+            items,
+            source=RubricSource.AI_GENERATED.value,
+        )
+
+    def _create_initial_rubric(
+        self,
+        db: Session,
+        assignment_id: int,
+        items: list[RubricItemCreate],
+        *,
+        source: str,
+    ) -> Rubric:
+        assignment = self.ensure_initial_rubric_can_be_created(db, assignment_id)
+        self._raise_if_invalid(assignment, items)
+        return rubric_repository.create(
+            db,
+            assignment_id=assignment_id,
+            version=1,
+            source=source,
+            items=items,
+        )
+
+    def ensure_initial_rubric_can_be_created(
+        self,
+        db: Session,
+        assignment_id: int,
+    ) -> Assignment:
         assignment = assignment_service.get_assignment(db, assignment_id)
         self._ensure_assignment_is_editable(assignment)
 
@@ -42,15 +85,7 @@ class RubricService:
                 status_code=status.HTTP_409_CONFLICT,
                 details={"assignment_id": assignment_id, "rubric_id": existing.id},
             )
-
-        self._raise_if_invalid(assignment, payload.items)
-        return rubric_repository.create(
-            db,
-            assignment_id=assignment_id,
-            version=1,
-            source=RubricSource.TEACHER_PROVIDED.value,
-            items=payload.items,
-        )
+        return assignment
 
     def get_latest_rubric(self, db: Session, assignment_id: int) -> Rubric:
         assignment_service.get_assignment(db, assignment_id)
@@ -126,6 +161,9 @@ class RubricService:
         assignment = assignment_service.get_assignment(db, assignment_id)
         rubric = self.get_latest_rubric(db, assignment_id)
         return self.validate_items(assignment.total_score, list(rubric.items))
+
+    def ensure_items_valid(self, assignment: Assignment, items: list[Any]) -> None:
+        self._raise_if_invalid(assignment, items)
 
     def lock_latest_rubric(self, db: Session, assignment_id: int) -> Rubric:
         assignment = assignment_service.get_assignment(db, assignment_id)

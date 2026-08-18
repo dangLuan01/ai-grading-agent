@@ -244,7 +244,13 @@ async def test_lock_valid_rubric(client: AsyncClient, auth_headers: dict[str, st
         headers=auth_headers,
     )
     assert validate_response.status_code == 200
-    assert validate_response.json() == {"valid": True, "errors": []}
+    assert validate_response.json() == {
+        "valid": True,
+        "ai_valid": None,
+        "errors": [],
+        "warnings": [],
+        "ai_prompt_version": None,
+    }
 
     lock_response = await client.post(
         f"/api/v1/assignments/{assignment['id']}/rubric/lock",

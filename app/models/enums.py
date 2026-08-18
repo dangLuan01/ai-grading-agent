@@ -27,6 +27,7 @@ class RubricStatus(StrEnum):
 class SubmissionStatus(StrEnum):
     RECEIVED = "RECEIVED"
     COLLECTING = "COLLECTING"
+    INVENTORIED = "INVENTORIED"
     PARSED = "PARSED"
     READY_FOR_GRADING = "READY_FOR_GRADING"
     GRADING = "GRADING"

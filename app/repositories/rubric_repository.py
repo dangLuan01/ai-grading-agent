@@ -30,6 +30,19 @@ class RubricRepository:
         )
         return db.execute(statement).scalar_one_or_none()
 
+    def get_latest_locked_for_assignment(self, db: Session, assignment_id: int) -> Rubric | None:
+        statement = (
+            select(Rubric)
+            .options(selectinload(Rubric.items))
+            .where(
+                Rubric.assignment_id == assignment_id,
+                Rubric.status == RubricStatus.LOCKED.value,
+            )
+            .order_by(Rubric.version.desc())
+            .limit(1)
+        )
+        return db.execute(statement).scalar_one_or_none()
+
     def next_version(self, db: Session, assignment_id: int) -> int:
         current = db.scalar(
             select(func.max(Rubric.version)).where(Rubric.assignment_id == assignment_id)

@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
 
-from app.api import assignments, auth, health, rubrics
+from app.api import assignments, auth, health, rubrics, submissions
 from app.core.config import get_settings
 from app.core.exceptions import (
     DomainError,
@@ -23,6 +23,7 @@ def create_app() -> FastAPI:
             {"name": "Auth", "description": "Authentication endpoints."},
             {"name": "Assignments", "description": "Assignment management endpoints."},
             {"name": "Rubrics", "description": "Rubric lifecycle endpoints."},
+            {"name": "Submissions", "description": "Teacher-managed submission import."},
             {"name": "Health", "description": "Service health endpoints."},
         ],
     )
@@ -32,6 +33,7 @@ def create_app() -> FastAPI:
     application.include_router(auth.router, prefix=settings.api_v1_prefix)
     application.include_router(assignments.router, prefix=settings.api_v1_prefix)
     application.include_router(rubrics.router, prefix=settings.api_v1_prefix)
+    application.include_router(submissions.router, prefix=settings.api_v1_prefix)
     application.include_router(health.router)
 
     return application

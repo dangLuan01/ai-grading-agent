@@ -80,6 +80,7 @@ class SubmissionFile(Base):
         index=True,
     )
     path: Mapped[str] = mapped_column(String(1024), nullable=False)
+    blob_sha: Mapped[str | None] = mapped_column(String(64), nullable=True)
     extension: Mapped[str | None] = mapped_column(String(32), nullable=True)
     content_type: Mapped[str | None] = mapped_column(String(128), nullable=True)
     size_bytes: Mapped[int] = mapped_column(BigInteger, nullable=False)
