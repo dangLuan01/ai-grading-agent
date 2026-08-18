@@ -1,0 +1,13 @@
+.env
+.git
+.pytest_cache
+.ruff_cache
+.venv
+venv
+__pycache__
+*.py[cod]
+dist
+build
+*.egg-info
+tests
+master_prompt.md

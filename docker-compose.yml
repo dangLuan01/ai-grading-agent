@@ -1,0 +1,44 @@
+services:
+  api:
+    build: .
+    environment:
+      APP_NAME: ${APP_NAME:-AI Assignment Grading Agent}
+      APP_ENV: ${APP_ENV:-development}
+      DEBUG: ${DEBUG:-false}
+      DATABASE_URL: ${DATABASE_URL:-mysql+pymysql://ai_grading:change_me@mysql-host:3306/ai_grading?charset=utf8mb4}
+      JWT_SECRET: ${JWT_SECRET:-change-me}
+      JWT_ALGORITHM: ${JWT_ALGORITHM:-HS256}
+      ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES:-1440}
+      RUN_MIGRATIONS_ON_STARTUP: ${RUN_MIGRATIONS_ON_STARTUP:-false}
+      GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+      LLM_PRIMARY_PROVIDER: ${LLM_PRIMARY_PROVIDER:-gemini}
+      LLM_FALLBACK_PROVIDER: ${LLM_FALLBACK_PROVIDER:-qwen}
+      GEMINI_BASE_URL: ${GEMINI_BASE_URL:-https://generativelanguage.googleapis.com/v1beta}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_MODEL: ${GEMINI_MODEL:-}
+      QWEN_BASE_URL: ${QWEN_BASE_URL:-https://dashscope-intl.aliyuncs.com/compatible-mode/v1}
+      QWEN_API_KEY: ${QWEN_API_KEY:-}
+      QWEN_MODEL: ${QWEN_MODEL:-}
+      DEEPSEEK_BASE_URL: ${DEEPSEEK_BASE_URL:-https://api.deepseek.com}
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:-}
+      DEEPSEEK_MODEL: ${DEEPSEEK_MODEL:-}
+      LLM_TIMEOUT_SECONDS: ${LLM_TIMEOUT_SECONDS:-60}
+      MAX_REPOSITORY_SIZE_MB: ${MAX_REPOSITORY_SIZE_MB:-50}
+      MAX_FILE_SIZE_MB: ${MAX_FILE_SIZE_MB:-10}
+      MAX_PARSED_FILES: ${MAX_PARSED_FILES:-200}
+      MAX_REGRADE_ATTEMPTS: ${MAX_REGRADE_ATTEMPTS:-1}
+      GRADING_TEMP_DIR: ${GRADING_TEMP_DIR:-/tmp/grading}
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=2).read()",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
